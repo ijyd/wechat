@@ -11,7 +11,7 @@ import (
 func Create(c backend.Config) (connector.Interface, error) {
 
 	switch c.Type {
-	case backend.WeChatHookIOT, backend.WeChatHookUnset:
+	case backend.WeChatIOT, backend.WeChatUnset:
 		return newIOT(c)
 	}
 

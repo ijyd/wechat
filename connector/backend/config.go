@@ -1,10 +1,10 @@
 package backend
 
 const (
-	//WeChatHookUnset wechat hook not set
-	WeChatHookUnset = ""
-	//WeChatHookIOT wechat hook iot backend
-	WeChatHookIOT = "iot"
+	//WeChatUnset wechat hook not set
+	WeChatUnset = ""
+	//WeChatIOT wechat hook iot backend
+	WeChatIOT = "iot"
 )
 
 //Config contais all parameters required to start the wechat callback service

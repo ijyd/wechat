@@ -5,3 +5,5 @@
 wechat is a sdk for golang. support:
 
 - iot: for wechat hardware platform
+
+*currently in the development*

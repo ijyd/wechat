@@ -7,5 +7,5 @@ import (
 )
 
 func newIOT(c backend.Config) (connector.Interface, error) {
-	return iot.NewIOTWeChatHook(c.Token, c.EncodingAESKey)
+	return iot.NewIOT(c.Token, c.EncodingAESKey)
 }

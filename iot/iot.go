@@ -1,6 +1,7 @@
 package iot
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -17,8 +18,15 @@ type IOT struct {
 	EncodingAESKey string
 }
 
-//NewIOTWeChatHook Create  iot wechat hook
-func NewIOTWeChatHook(token, aeskey string) (connector.Interface, error) {
+var clientFunc map[string]connector.RESTClient
+
+//RegisterClient registed client interface
+func RegisterClient(c connector.RESTClient) {
+	clientFunc[c.ResourceName()] = c
+}
+
+//NewIOT Create  iot wechat hook
+func NewIOT(token, aeskey string) (connector.Interface, error) {
 	return &IOT{
 		Token:          token,
 		EncodingAESKey: aeskey,
@@ -96,12 +104,12 @@ func (i *IOT) processAsyncMessage(body []byte) *connector.Error {
 	return nil
 }
 
-//Get send get method request to wechat
-func (i *IOT) Get() {
-
+//Get implement Get method for client interface
+func (i *IOT) Get(ctx context.Context, parameters map[string]string, out connector.Object) error {
+	return nil
 }
 
-//Post send post method request to wechat
-func (i *IOT) Post() {
-
+//Post implement Get method for client interface
+func (i *IOT) Post(ctx context.Context, parameters map[string]string, obj connector.Object) error {
+	return nil
 }
