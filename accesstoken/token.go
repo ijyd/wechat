@@ -75,11 +75,13 @@ func (t *WeChatAccessToken) tokenCenter() {
 			token, err := requestToken(httpClient, url)
 			if err != nil {
 				glog.Errorf("request token error %v\r\n", err)
+				refresh = t.tokenRefreshTime(0)
 				continue
 			}
 
 			if token.ErrCode != 0 {
 				glog.Errorf("wechat result errorcode(%v) errmsg(%v)\r\n", token.ErrCode, token.ErrMsg)
+				refresh = t.tokenRefreshTime(0)
 				continue
 			}
 
