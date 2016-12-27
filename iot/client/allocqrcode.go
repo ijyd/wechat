@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	url, err := url.Parse("https://api.weixin.qq.com/device/authorize_device")
+	url, err := url.Parse("https://api.weixin.qq.com/device/getqrcode")
 	if err != nil {
 		glog.Fatalf("parse raw url error %v\r\n", err)
 	}
@@ -23,20 +23,20 @@ func init() {
 	iot.RegisterClient(devAuth)
 }
 
-type devAuthorization struct {
+type allocQRCode struct {
 	base         *url.URL
 	resourceName string
 	client       *http.Client
 }
 
-func (d devAuthorization) URL() *url.URL {
+func (d allocQRCode) URL() *url.URL {
 	return d.base
 }
 
-func (d devAuthorization) ResourceName() string {
+func (d allocQRCode) ResourceName() string {
 	return d.resourceName
 }
 
-func (d devAuthorization) Client() *http.Client {
+func (d allocQRCode) Client() *http.Client {
 	return d.client
 }

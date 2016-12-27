@@ -40,13 +40,19 @@ const (
 //Startup create wechat access token and start internal goroutine
 func Startup(appID, appSecret string) {
 
-	WeChatToken = &WeChatAccessToken{
-		appID:     appID,
-		appSecret: appSecret,
-		expire:    defaultExpire,
+	var once sync.Once
+	onceFunc := func() {
+		WeChatToken = &WeChatAccessToken{
+			appID:     appID,
+			appSecret: appSecret,
+			expire:    defaultExpire,
+		}
+
+		go WeChatToken.tokenCenter()
 	}
 
-	go WeChatToken.tokenCenter()
+	once.Do(onceFunc)
+
 }
 
 //Token get current token

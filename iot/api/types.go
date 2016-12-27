@@ -69,3 +69,38 @@ type Service struct {
 	OperationStatus string `json:"operation_status"`
 	Status          int8   `json:"status"`
 }
+
+type RespMsg struct {
+	Code    int    `json:"ret_code"`
+	ErrInfo string `json:"error_info"`
+}
+
+type AllocQRCode struct {
+	RespMessage   RespMsg `json:"resp_msg"`
+	DeviceID      string  `json:"deviceid"`
+	QRCodeTicket  string  `json:"qrticket"`
+	DeviceLicence string  `json:"devicelicence"`
+}
+
+type Device struct {
+	ID                string `json:"id"`
+	Mac               string `json:"mac"`
+	ConnectProtocol   string `json:"connect_protocol"`
+	AuthKey           string `json:"auth_key"`
+	CloseStrategy     string `json:"close_strategy"`
+	ConnStrategy      string `json:"conn_strategy"`
+	CryptMethod       string `json:"crypt_method"`
+	AuthVer           string `json:"auth_ver"`
+	ManuMacPos        string `json:"manu_mac_pos"`
+	SerMacPos         string `json:"ser_mac_pos"`
+	BleSimpleProtocol string `json:"ble_simple_protocol"`
+}
+
+type DevAuthorizeReq struct {
+	DeviceNum string `json:"device_num"`
+	Devices   Device `json:"device_list"`
+	OPType    string `json:"op_type"`
+}
+
+type DevAuthorizeResp struct {
+}
