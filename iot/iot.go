@@ -16,6 +16,7 @@ import (
 type IOT struct {
 	Token          string
 	EncodingAESKey string
+	tokenHandler   connector.AccessToken
 }
 
 var clientFunc map[string]connector.RESTClient
@@ -26,10 +27,11 @@ func RegisterClient(c connector.RESTClient) {
 }
 
 //NewIOT Create  iot wechat hook
-func NewIOT(token, aeskey string) (connector.Interface, error) {
+func NewIOT(token, aeskey string, accessToken connector.AccessToken) (connector.Interface, error) {
 	return &IOT{
 		Token:          token,
 		EncodingAESKey: aeskey,
+		tokenHandler:   accessToken,
 	}, nil
 }
 
