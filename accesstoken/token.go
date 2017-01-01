@@ -29,31 +29,10 @@ type token struct {
 	ExpiresIn int64  `json:"expires_in"`
 }
 
-//WeChatToken a global handler for wechat token
-var WeChatToken *WeChatAccessToken
-
 const (
 	defaultExpire  time.Duration = time.Duration(2 * time.Hour)
 	wechatTokenURL               = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential"
 )
-
-//Startup create wechat access token and start internal goroutine
-func Startup(appID, appSecret string) {
-
-	var once sync.Once
-	onceFunc := func() {
-		WeChatToken = &WeChatAccessToken{
-			appID:     appID,
-			appSecret: appSecret,
-			expire:    defaultExpire,
-		}
-
-		go WeChatToken.tokenCenter()
-	}
-
-	once.Do(onceFunc)
-
-}
 
 //Token get current token
 func (t *WeChatAccessToken) Token() (token string, err error) {

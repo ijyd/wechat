@@ -82,6 +82,11 @@ type AllocQRCode struct {
 	DeviceLicence string  `json:"devicelicence"`
 }
 
+//Type indicate  object type
+func (*AllocQRCode) Type() string {
+	return "AllocQRCode"
+}
+
 type Device struct {
 	ID                string `json:"id"`
 	Mac               string `json:"mac"`
@@ -100,6 +105,11 @@ type DevAuthorizeReq struct {
 	DeviceNum string `json:"device_num"`
 	Devices   Device `json:"device_list"`
 	OPType    string `json:"op_type"`
+}
+
+//Type indicate  object type
+func (*DevAuthorizeReq) Type() string {
+	return "DevAuthorizeReq"
 }
 
 type DevAuthorizeResp struct {
