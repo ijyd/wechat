@@ -1,11 +1,12 @@
-package client
+package restclient
 
 import (
 	"net/http"
 	"net/url"
+	"reflect"
 
 	"github.com/golang/glog"
-	"github.com/ijyd/wechat/iot"
+	"github.com/ijyd/wechat/iot/api"
 )
 
 func init() {
@@ -13,14 +14,16 @@ func init() {
 	if err != nil {
 		glog.Fatalf("parse raw url error %v\r\n", err)
 	}
+	glog.V(5).Infof("init rest client\r\n")
 
+	resource := reflect.TypeOf(&api.DevAuthorizeReq{}).String()
 	devAuth := &devAuthorization{
 		base:         url,
-		resourceName: "",
+		resourceName: resource,
 		client:       iotClient,
 	}
 
-	iot.RegisterClient(devAuth)
+	RegisterClient(devAuth)
 }
 
 type devAuthorization struct {

@@ -1,11 +1,12 @@
-package client
+package restclient
 
 import (
 	"net/http"
 	"net/url"
+	"reflect"
 
 	"github.com/golang/glog"
-	"github.com/ijyd/wechat/iot"
+	"github.com/ijyd/wechat/iot/api"
 )
 
 func init() {
@@ -14,13 +15,14 @@ func init() {
 		glog.Fatalf("parse raw url error %v\r\n", err)
 	}
 
-	devAuth := &devAuthorization{
+	resource := reflect.TypeOf(&api.AllocQRCode{}).String()
+	devAuth := &allocQRCode{
 		base:         url,
-		resourceName: "",
+		resourceName: resource,
 		client:       iotClient,
 	}
 
-	iot.RegisterClient(devAuth)
+	RegisterClient(devAuth)
 }
 
 type allocQRCode struct {

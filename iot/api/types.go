@@ -98,13 +98,13 @@ type Device struct {
 	AuthVer           string `json:"auth_ver"`
 	ManuMacPos        string `json:"manu_mac_pos"`
 	SerMacPos         string `json:"ser_mac_pos"`
-	BleSimpleProtocol string `json:"ble_simple_protocol"`
+	BleSimpleProtocol string `json:"ble_simple_protocol,omitempty"`
 }
 
 type DevAuthorizeReq struct {
-	DeviceNum string `json:"device_num"`
-	Devices   Device `json:"device_list"`
-	OPType    string `json:"op_type"`
+	DeviceNum string   `json:"device_num"`
+	Devices   []Device `json:"device_list"`
+	OPType    string   `json:"op_type,omitempty"`
 }
 
 //Type indicate  object type

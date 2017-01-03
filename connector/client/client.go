@@ -1,6 +1,9 @@
-package connector
+package client
 
 import (
+	"bytes"
+	"encoding/hex"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -82,8 +85,54 @@ func (r *Request) URL() *url.URL {
 	return finalURL
 }
 
-// request implement send request to remote server and extract response
-func (r *Request) request(fn func(*http.Request, *http.Response)) error {
+// Body makes the request use obj as the body. Optional.
+// If obj is a string, try to read a file of that name.
+// If obj is a []byte, send it directly.
+// If obj is an io.Reader, use it directly.
+// If obj is a runtime.Object, marshal it correctly, and set Content-Type header.
+// If obj is a runtime.Object and nil, do nothing.
+// Otherwise, set an error.
+func (r *Request) Body(obj interface{}) *Request {
+	if r.err != nil {
+		return r
+	}
+	switch t := obj.(type) {
+	case string:
+		data, err := ioutil.ReadFile(t)
+		if err != nil {
+			r.err = err
+			return r
+		}
+		glogBody("Request Body", data)
+		r.body = bytes.NewReader(data)
+	case []byte:
+		glogBody("Request Body", t)
+		r.body = bytes.NewReader(t)
+	case io.Reader:
+		r.body = t
+	default:
+		r.err = fmt.Errorf("unknown type used for body: %+v", obj)
+	}
+	return r
+}
+
+// glogBody logs a body output that could be either JSON or protobuf. It explicitly guards against
+// allocating a new string for the body output unless necessary. Uses a simple heuristic to determine
+// whether the body is printable.
+func glogBody(prefix string, body []byte) {
+	if glog.V(8) {
+		if bytes.IndexFunc(body, func(r rune) bool {
+			return r < 0x0a
+		}) != -1 {
+			glog.Infof("%s:\n%s", prefix, hex.Dump(body))
+		} else {
+			glog.Infof("%s: %s", prefix, string(body))
+		}
+	}
+}
+
+// Request implement send request to remote server and extract response
+func (r *Request) Request(fn func(*http.Request, *http.Response) error) error {
 	//Metrics for total request latency
 	start := time.Now()
 
@@ -121,10 +170,11 @@ func (r *Request) request(fn func(*http.Request, *http.Response)) error {
 			resp.Body.Close()
 		}()
 
-		fn(req, resp)
+		err = fn(req, resp)
 		return true
 	}()
 
-	glog.V(5).Infof("request end result(%v) Spend time (%vs)", done, time.Now().Second()-start.Second())
-	return nil
+	glog.V(5).Infof("request (url:%v ) end result(%v) Spend time (%vs)",
+		url, done, time.Now().Second()-start.Second())
+	return err
 }

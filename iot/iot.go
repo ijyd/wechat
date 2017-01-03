@@ -6,10 +6,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 
 	"github.com/golang/glog"
 	"github.com/ijyd/wechat/connector"
+	"github.com/ijyd/wechat/connector/client"
 	"github.com/ijyd/wechat/iot/api"
+	"github.com/ijyd/wechat/iot/restclient"
 )
 
 //IOT implement wechat iot callback service
@@ -19,15 +22,10 @@ type IOT struct {
 	tokenHandler   connector.AccessToken
 }
 
-var clientFunc map[string]connector.RESTClient
-
-//RegisterClient registed client interface
-func RegisterClient(c connector.RESTClient) {
-	clientFunc[c.ResourceName()] = c
-}
-
 //NewIOT Create  iot wechat hook
 func NewIOT(token, aeskey string, accessToken connector.AccessToken) (connector.Interface, error) {
+	glog.V(5).Infof("init  NewIOT\r\n")
+
 	return &IOT{
 		Token:          token,
 		EncodingAESKey: aeskey,
@@ -108,10 +106,90 @@ func (i *IOT) processAsyncMessage(body []byte) *connector.Error {
 
 //Get implement Get method for client interface
 func (i *IOT) Get(ctx context.Context, parameters map[string]string, out connector.Object) error {
-	return nil
+
+	token, err := i.tokenHandler.Token()
+	if err != nil {
+		return err
+	}
+	glog.V(5).Infof("Get method parameters(%v) token(%v)  out.kind(%v)",
+		parameters, token, reflect.TypeOf(out))
+
+	glog.V(5).Infof("restclient %v\r\n", restclient.ClientFunc)
+	restC, ok := restclient.ClientFunc[reflect.TypeOf(out).String()]
+	if !ok {
+		glog.Errorf("not found client func with type(%v)\r\n", reflect.TypeOf(out))
+		return fmt.Errorf("not found client func")
+	}
+
+	req := client.NewRequest(nil, http.MethodGet, restC.URL())
+	req.SetParam("access_token", token)
+	for k, v := range parameters {
+		req.SetParam(k, v)
+	}
+
+	err = req.Request(func(req *http.Request, resp *http.Response) error {
+		if resp.StatusCode >= 300 {
+			glog.Errorf("response error code %v\r\n", resp.StatusCode)
+			return fmt.Errorf("response error %v", resp.StatusCode)
+		}
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			glog.Errorf("read body error %v", err)
+			return err
+		}
+		resp.Body.Close()
+		glog.V(5).Infof("resp body\r\n", string(body))
+
+		return nil
+	})
+
+	return err
 }
 
 //Post implement Get method for client interface
 func (i *IOT) Post(ctx context.Context, parameters map[string]string, obj connector.Object) error {
-	return nil
+	token, err := i.tokenHandler.Token()
+	if err != nil {
+		return err
+	}
+	glog.V(5).Infof("Get method parameters(%v) token(%v)  out.kind(%v)",
+		parameters, token, reflect.TypeOf(obj))
+
+	glog.V(5).Infof("restclient %v\r\n", restclient.ClientFunc)
+	restC, ok := restclient.ClientFunc[reflect.TypeOf(obj).String()]
+	if !ok {
+		glog.Errorf("not found client func with type(%v)\r\n", reflect.TypeOf(obj))
+		return fmt.Errorf("not found client func")
+	}
+
+	req := client.NewRequest(nil, http.MethodPost, restC.URL())
+	req.SetParam("access_token", token)
+	for k, v := range parameters {
+		req.SetParam(k, v)
+	}
+
+	body, err := json.Marshal(obj)
+	if err != nil {
+		return err
+	}
+	req.Body(body)
+	err = req.Request(func(req *http.Request, resp *http.Response) error {
+		if resp.StatusCode >= 300 {
+			glog.Errorf("response error code %v\r\n", resp.StatusCode)
+			return fmt.Errorf("response error %v", resp.StatusCode)
+		}
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			glog.Errorf("read body error %v", err)
+			return err
+		}
+		resp.Body.Close()
+		glog.V(5).Infof("resp body\r\n", string(body))
+
+		return nil
+	})
+
+	return err
 }
